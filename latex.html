@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Self-Contained LaTeX Editor</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f0f7ff;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        header {
+            background: #4a6fa5;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 20px;
+        }
+        
+        .input-section, .preview-section {
+            flex: 1;
+            min-width: 300px;
+            padding: 20px;
+        }
+        
+        .section-title {
+            color: #4a6fa5;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        #latex-input {
+            width: 100%;
+            height: 180px;
+            padding: 15px;
+            border: 2px solid #c5d5ff;
+            border-radius: 8px;
+            font-size: 16px;
+            resize: vertical;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 6px;
+            background: #6c8bc7;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-size: 14px;
+        }
+        
+        button:hover {
+            background: #4a6fa5;
+        }
+        
+        #preview {
+            min-height: 180px;
+            padding: 20px;
+            border: 2px solid #c5d5ff;
+            border-radius: 8px;
+            background: #f9fbff;
+            font-size: 24px;
+            overflow: auto;
+        }
+        
+        .examples {
+            background: #f0f5ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .example {
+            margin: 15px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .example-title {
+            font-weight: bold;
+            color: #4a6fa5;
+            margin-bottom: 8px;
+        }
+        .integral {
+            font-size: 1.2em;
+            font-style: italic;
+        }
+
+        .integral-limits {
+            display: inline-block;
+            vertical-align: middle;
+            font-size: 0.8em;
+        }
+        .example-code {
+            font-family: monospace;
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 8px 0;
+            color: #d63384;
+        }
+        
+        .instructions {
+            background: #fff4e6;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .instructions h3 {
+            color: #e67700;
+            margin-bottom: 10px;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin: 8px 0;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #6c7592;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+        }
+        
+        .fraction {
+            display: inline-block;
+            text-align: center;
+            vertical-align: middle;
+        }
+        
+        .numerator, .denominator {
+            display: block;
+        }
+        
+        .denominator {
+            border-top: 1px solid black;
+        }
+        
+        .sqrt {
+            text-decoration: overline;
+            padding-left: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Self-Contained LaTeX Editor</h1>
+        </header>
+        
+        <div class="main-content">
+            <div class="input-section">
+                <h2 class="section-title">Your LaTeX Code</h2>
+                <textarea id="latex-input" placeholder="Type your LaTeX code here..."></textarea>
+                
+                <div class="buttons">
+                    <button id="render-btn">Render LaTeX</button>
+                    <button id="clear-btn">Clear</button>
+                </div>
+                
+                <h2 class="section-title">LaTeX Tools</h2>
+                <div class="buttons">
+                    <button id="simple-fraction">Insert Fraction</button>
+                    <button id="multiplication-btn">Insert Multiplication</button>
+                    <button id="sqrt-btn">Insert Square Root</button>
+                    <button id="integral-btn">Insert Integral</button>
+                    <button id="sub-btn">Insert Subscript</button>
+                    <button id="sup-btn">Insert Supscript</button>
+                    <button id="h1-btn">Insert H1</button>
+                    <button id="bold-btn">Insert Bold</button>
+
+
+                </div>
+                
+                
+            </div>
+            
+            <div class="preview-section">
+                <h2 class="section-title">Preview</h2>
+                <div id="preview"></div>
+                
+                
+            </div>
+        </div>
+        
+        <footer>
+            <p>This is a self-contained editor with no external dependencies. &copy; 2023</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const latexInput = document.getElementById('latex-input');
+            const preview = document.getElementById('preview');
+            const renderBtn = document.getElementById('render-btn');
+            const clearBtn = document.getElementById('clear-btn');
+            const simpleFractionBtn = document.getElementById('simple-fraction');
+            const multiplicationBtn = document.getElementById('multiplication-btn');
+            const sqrtBtn = document.getElementById('sqrt-btn');
+            const integralBtn = document.getElementById('integral-btn');
+            const demoSup = document.getElementById('sup-btn');
+            const demoSub = document.getElementById('sub-btn');
+            const h1Btn = document.getElementById('h1-btn');
+            const boldBtn = document.getElementById('bold-btn');
+
+
+            
+            // Function to render our custom LaTeX-like syntax
+            function renderLatex() {
+                const latexCode = latexInput.value;
+                preview.innerHTML = '';
+                
+                try {
+                    // Parse and convert our custom syntax to HTML
+                    let htmlOutput = parseLatex(latexCode);
+                    preview.innerHTML = htmlOutput;
+                } catch (error) {
+                    preview.innerHTML = `
+                        <div style="color: red; text-align: center; padding: 20px;">
+                            <p><strong>Error rendering expression:</strong></p>
+                            <p>${error.message}</p>
+                        </div>
+                    `;
+                }
+            }
+            
+            // Parse our custom LaTeX-like syntax
+            function parseLatex(code) {
+                // Replace fractions
+                code = code.replace(/\\frac{([^}]+)}{([^}]+)}/g, 
+                    '<div class="fraction"><div class="numerator">$1</div><div class="denominator">$2</div></div>');
+                
+                // Replace multiplication
+                code = code.replace(/\\times/g, '×');
+                code = code.replace(/\\cdot/g, '·');
+                
+                // Replace square roots
+                code = code.replace(/\\sqrt{([^}]+)}/g, 
+                    '√<span class="sqrt">$1</span>');
+                
+                
+                code = code.replace(/\\int/g,'∫');
+                code = code.replace(/\\int_\{([^}]+)\}\{([^}]+)\}/g, '∫<sub>$1</sub><sup>$2</sup>');
+
+                code=code.replace(/([a-zA-Z0-9])\^\{([^}]+)\}/g,'$1<sup>$2</sup>');
+                code = code.replace(/([a-zA-Z0-9])_\{([^}]+)\}/g, '$1<sub>$2</sub>');
+
+                // H1 Heading (\section{})
+                code = code.replace(/\\section{([^}]+)}/g, '<h1>$1</h1>');
+
+                code = code.replace(/\\textbf{([^}]+)}/g, '<b>$1</b>');
+
+                while (/\^\{([^}]+)\}/.test(code)) {
+            code = code.replace(/([a-zA-Z0-9])\^\{([^}]+)\}/g,'$1<sup>$2</sup>');
+        }
+        while (/_\{([^}]+)\}/.test(code)) {
+            code = code.replace(/([a-zA-Z0-9])_\{([^}]+)\}/g,'$1<sub>$2</sub>');
+        }
+
+
+
+
+
+                
+                return code;
+            }
+            
+            // Initial render
+            renderLatex();
+            
+            // Event listeners
+            renderBtn.addEventListener('click', renderLatex);
+            
+            clearBtn.addEventListener('click', function() {
+                latexInput.value = '';
+                preview.innerHTML = '<p style="text-align: center; color: #666;">Preview will appear here</p>';
+            });
+            
+            simpleFractionBtn.addEventListener('click', function() {
+                insertAtCursor(latexInput, '\\frac{numerator}{denominator}');
+                renderLatex();
+            });
+            
+            multiplicationBtn.addEventListener('click', function() {
+                insertAtCursor(latexInput, ' \\times ');
+                renderLatex();
+            });
+            
+            sqrtBtn.addEventListener('click', function() {
+                insertAtCursor(latexInput, '\\sqrt{value}');
+                renderLatex();
+            });
+            integralBtn.addEventListener('click', function() {
+                insertAtCursor(latexInput, '\\int_{a}^{b} f(x) dx');
+                 renderLatex();
+            });
+            demoSup.addEventListener('click', function() {
+                insertAtCursor(latexInput, 'x^{2}');
+                 renderDemo();
+            });
+
+            demoSub.addEventListener('click', function() {
+                 insertAtCursor(latexInput, 'H_{2}');
+                renderDemo();
+            });
+
+            h1Btn.addEventListener('click', function() {
+                insertAtCursor(latexInput, '\\section{Heading}');
+                renderLatex();
+            });
+
+            boldBtn.addEventListener('click', function() {
+                insertAtCursor(latexInput, '\\textbf{bold text}');
+                renderLatex();
+            });
+
+
+            // Helper function to insert text at cursor position
+            function insertAtCursor(textarea, text) {
+                const cursorPosition = textarea.selectionStart;
+                const currentValue = textarea.value;
+                
+                textarea.value = currentValue.substring(0, cursorPosition) + 
+                                text + 
+                                currentValue.substring(cursorPosition);
+                
+                // Set cursor position after the inserted text
+                textarea.selectionEnd = cursorPosition + text.length;
+                
+                // Focus back on the textarea
+                textarea.focus();
+            }
+            
+            // Auto-render when typing (with a delay to avoid performance issues)
+            let typingTimer;
+            latexInput.addEventListener('input', function() {
+                clearTimeout(typingTimer);
+                typingTimer = setTimeout(renderLatex, 800);
+            });
+        });
+    </script>
+</body>
+</html>
