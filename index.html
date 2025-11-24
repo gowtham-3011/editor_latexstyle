@@ -106,65 +106,6 @@
             overflow: auto;
         }
         
-        .examples {
-            background: #f0f5ff;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
-        }
-        
-        .example {
-            margin: 15px 0;
-            padding: 15px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-        
-        .example-title {
-            font-weight: bold;
-            color: #4a6fa5;
-            margin-bottom: 8px;
-        }
-        .integral {
-            font-size: 1.2em;
-            font-style: italic;
-        }
-
-        .integral-limits {
-            display: inline-block;
-            vertical-align: middle;
-            font-size: 0.8em;
-        }
-        .example-code {
-            font-family: monospace;
-            background: #f5f5f5;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 8px 0;
-            color: #d63384;
-        }
-        
-        .instructions {
-            background: #fff4e6;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
-        }
-        
-        .instructions h3 {
-            color: #e67700;
-            margin-bottom: 10px;
-        }
-        
-        .instructions ul {
-            padding-left: 20px;
-        }
-        
-        .instructions li {
-            margin: 8px 0;
-        }
-        
         footer {
             text-align: center;
             padding: 20px;
@@ -186,6 +127,7 @@
         
         .numerator, .denominator {
             display: block;
+            padding: 0 2px;
         }
         
         .denominator {
@@ -195,6 +137,14 @@
         .sqrt {
             text-decoration: overline;
             padding-left: 5px;
+        }
+
+        .math-func {
+            font-style: italic;
+        }
+
+        .lim {
+            font-style: italic;
         }
     </style>
 </head>
@@ -216,26 +166,25 @@
                 
                 <h2 class="section-title">LaTeX Tools</h2>
                 <div class="buttons">
-                    <button id="simple-fraction">Insert Fraction</button>
-                    <button id="multiplication-btn">Insert Multiplication</button>
-                    <button id="sqrt-btn">Insert Square Root</button>
-                    <button id="integral-btn">Insert Integral</button>
-                    <button id="sub-btn">Insert Subscript</button>
-                    <button id="sup-btn">Insert Supscript</button>
-                    <button id="h1-btn">Insert H1</button>
-                    <button id="bold-btn">Insert Bold</button>
-
-
+                    <button id="simple-fraction">Fraction</button>
+                    <button id="multiplication-btn">× / ·</button>
+                    <button id="sqrt-btn">√</button>
+                    <button id="integral-btn">Integral</button>
+                    <button id="sum-btn">Summation</button>
+                    <button id="limit-btn">Limit</button>
+                    <button id="sub-btn">Subscript</button>
+                    <button id="sup-btn">Superscript</button>
+                    <button id="h1-btn">Heading</button>
+                    <button id="bold-btn">Bold</button>
+                    <button id="sin-btn">sin</button>
+                    <button id="cos-btn">cos</button>
+                    <button id="tan-btn">tan</button>
                 </div>
-                
-                
             </div>
             
             <div class="preview-section">
                 <h2 class="section-title">Preview</h2>
-                <div id="preview"></div>
-                
-                
+                <div id="preview"><p style="text-align: center; color: #666;">Preview will appear here</p></div>
             </div>
         </div>
         
@@ -254,20 +203,22 @@
             const multiplicationBtn = document.getElementById('multiplication-btn');
             const sqrtBtn = document.getElementById('sqrt-btn');
             const integralBtn = document.getElementById('integral-btn');
+            const sumBtn = document.getElementById('sum-btn');
+            const limitBtn = document.getElementById('limit-btn');
             const demoSup = document.getElementById('sup-btn');
             const demoSub = document.getElementById('sub-btn');
             const h1Btn = document.getElementById('h1-btn');
             const boldBtn = document.getElementById('bold-btn');
+            const sinBtn = document.getElementById('sin-btn');
+            const cosBtn = document.getElementById('cos-btn');
+            const tanBtn = document.getElementById('tan-btn');
 
-
-            
-            // Function to render our custom LaTeX-like syntax
+            // Render function
             function renderLatex() {
                 const latexCode = latexInput.value;
                 preview.innerHTML = '';
                 
                 try {
-                    // Parse and convert our custom syntax to HTML
                     let htmlOutput = parseLatex(latexCode);
                     preview.innerHTML = htmlOutput;
                 } catch (error) {
@@ -280,51 +231,99 @@
                 }
             }
             
-            // Parse our custom LaTeX-like syntax
+            // Parser
             function parseLatex(code) {
-                // Replace fractions
-                code = code.replace(/\\frac{([^}]+)}{([^}]+)}/g, 
-                    '<div class="fraction"><div class="numerator">$1</div><div class="denominator">$2</div></div>');
+                let out = code;
+
+                // Line breaks
+                out = out.replace(/\r\n/g, '\n');
+                out = out.replace(/\n/g, '<br>');
+
+                // Sections: \section{Title}
+                out = out.replace(/\\section{([^}]+)}/g, '<h1>$1</h1>');
+
+                // Bold text: \textbf{...}
+                out = out.replace(/\\textbf{([^}]+)}/g, '<b>$1</b>');
+
+                // Greek letters (basic set)
+                const greekMap = {
+                    '\\\\alpha': 'α',
+                    '\\\\beta': 'β',
+                    '\\\\gamma': 'γ',
+                    '\\\\delta': 'δ',
+                    '\\\\theta': 'θ',
+                    '\\\\lambda': 'λ',
+                    '\\\\mu': 'μ',
+                    '\\\\pi': 'π',
+                    '\\\\sigma': 'σ',
+                    '\\\\phi': 'φ',
+                    '\\\\omega': 'ω'
+                };
+                for (const pattern in greekMap) {
+                    const re = new RegExp(pattern, 'g');
+                    out = out.replace(re, greekMap[pattern]);
+                }
+
+                // Trigonometric functions
+                out = out.replace(/\\sin/g, '<span class="math-func">sin</span>');
+                out = out.replace(/\\cos/g, '<span class="math-func">cos</span>');
+                out = out.replace(/\\tan/g, '<span class="math-func">tan</span>');
+
+                // Fractions: \frac{a}{b}
+                out = out.replace(/\\frac{([^}]+)}{([^}]+)}/g,
+                    '<span class="fraction"><span class="numerator">$1</span><span class="denominator">$2</span></span>'
+                );
                 
-                // Replace multiplication
-                code = code.replace(/\\times/g, '×');
-                code = code.replace(/\\cdot/g, '·');
+                // Multiplication symbols
+                out = out.replace(/\\times/g, '×');
+                out = out.replace(/\\cdot/g, '·');
                 
-                // Replace square roots
-                code = code.replace(/\\sqrt{([^}]+)}/g, 
-                    '√<span class="sqrt">$1</span>');
-                
-                
-                code = code.replace(/\\int/g,'∫');
-                code = code.replace(/\\int_\{([^}]+)\}\{([^}]+)\}/g, '∫<sub>$1</sub><sup>$2</sup>');
+                // Square roots: \sqrt{...}
+                out = out.replace(/\\sqrt{([^}]+)}/g,
+                    '√<span class="sqrt">$1</span>'
+                );
 
-                code=code.replace(/([a-zA-Z0-9])\^\{([^}]+)\}/g,'$1<sup>$2</sup>');
-                code = code.replace(/([a-zA-Z0-9])_\{([^}]+)\}/g, '$1<sub>$2</sub>');
+                // Summation with limits: \sum_{i=1}^{n}
+                out = out.replace(/\\sum_\{([^}]+)\}\^\{([^}]+)\}/g,
+                    '∑<sub>$1</sub><sup>$2</sup>'
+                );
+                // Plain sum
+                out = out.replace(/\\sum/g, '∑');
 
-                // H1 Heading (\section{})
-                code = code.replace(/\\section{([^}]+)}/g, '<h1>$1</h1>');
+                // Limits: \lim_{x→0}
+                out = out.replace(/\\lim_\{([^}]+)\}/g,
+                    '<span class="lim">lim</span><sub>$1</sub>'
+                );
+                out = out.replace(/\\lim/g,
+                    '<span class="lim">lim</span>'
+                );
 
-                code = code.replace(/\\textbf{([^}]+)}/g, '<b>$1</b>');
+                // Integrals with limits: \int_{a}^{b}
+                out = out.replace(/\\int_\{([^}]+)\}\^\{([^}]+)\}/g,
+                    '∫<sub>$1</sub><sup>$2</sup>'
+                );
+                // Plain integral
+                out = out.replace(/\\int/g, '∫');
 
-                while (/\^\{([^}]+)\}/.test(code)) {
-            code = code.replace(/([a-zA-Z0-9])\^\{([^}]+)\}/g,'$1<sup>$2</sup>');
-        }
-        while (/_\{([^}]+)\}/.test(code)) {
-            code = code.replace(/([a-zA-Z0-9])_\{([^}]+)\}/g,'$1<sub>$2</sub>');
-        }
+                // First pass: one-level superscripts/subscripts: x^{2}, x_{i}
+                out = out.replace(/([a-zA-Z0-9])\^\{([^}]+)\}/g, '$1<sup>$2</sup>');
+                out = out.replace(/([a-zA-Z0-9])_\{([^}]+)\}/g, '$1<sub>$2</sub>');
 
+                // Additional passes to handle nested uses
+                while (/\^\{([^}]+)\}/.test(out)) {
+                    out = out.replace(/([a-zA-Z0-9])\^\{([^}]+)\}/g, '$1<sup>$2</sup>');
+                }
+                while (/_\{([^}]+)\}/.test(out)) {
+                    out = out.replace(/([a-zA-Z0-9])_\{([^}]+)\}/g, '$1<sub>$2</sub>');
+                }
 
-
-
-
-                
-                return code;
+                return out;
             }
             
             // Initial render
             renderLatex();
             
-            // Event listeners
+            // Events
             renderBtn.addEventListener('click', renderLatex);
             
             clearBtn.addEventListener('click', function() {
@@ -333,7 +332,7 @@
             });
             
             simpleFractionBtn.addEventListener('click', function() {
-                insertAtCursor(latexInput, '\\frac{numerator}{denominator}');
+                insertAtCursor(latexInput, '\\frac{a}{b}');
                 renderLatex();
             });
             
@@ -343,21 +342,34 @@
             });
             
             sqrtBtn.addEventListener('click', function() {
-                insertAtCursor(latexInput, '\\sqrt{value}');
+                insertAtCursor(latexInput, '\\sqrt{x}');
                 renderLatex();
             });
+
             integralBtn.addEventListener('click', function() {
-                insertAtCursor(latexInput, '\\int_{a}^{b} f(x) dx');
-                 renderLatex();
+                // LaTeX-like integral with limits
+                insertAtCursor(latexInput, '\\int_{a}^{b} f(x) \\, dx');
+                renderLatex();
             });
+
+            sumBtn.addEventListener('click', function() {
+                insertAtCursor(latexInput, '\\sum_{i=1}^{n} a_i');
+                renderLatex();
+            });
+
+            limitBtn.addEventListener('click', function() {
+                insertAtCursor(latexInput, '\\lim_{x \\to 0} f(x)');
+                renderLatex();
+            });
+
             demoSup.addEventListener('click', function() {
                 insertAtCursor(latexInput, 'x^{2}');
-                 renderDemo();
+                renderLatex();
             });
 
             demoSub.addEventListener('click', function() {
-                 insertAtCursor(latexInput, 'H_{2}');
-                renderDemo();
+                insertAtCursor(latexInput, 'H_{2}O');
+                renderLatex();
             });
 
             h1Btn.addEventListener('click', function() {
@@ -370,24 +382,33 @@
                 renderLatex();
             });
 
+            sinBtn.addEventListener('click', function() {
+                insertAtCursor(latexInput, '\\sin(x)');
+                renderLatex();
+            });
 
-            // Helper function to insert text at cursor position
+            cosBtn.addEventListener('click', function() {
+                insertAtCursor(latexInput, '\\cos(x)');
+                renderLatex();
+            });
+
+            tanBtn.addEventListener('click', function() {
+                insertAtCursor(latexInput, '\\tan(x)');
+                renderLatex();
+            });
+
+            // Insert helper
             function insertAtCursor(textarea, text) {
-                const cursorPosition = textarea.selectionStart;
-                const currentValue = textarea.value;
+                const start = textarea.selectionStart;
+                const end = textarea.selectionEnd;
+                const value = textarea.value;
                 
-                textarea.value = currentValue.substring(0, cursorPosition) + 
-                                text + 
-                                currentValue.substring(cursorPosition);
-                
-                // Set cursor position after the inserted text
-                textarea.selectionEnd = cursorPosition + text.length;
-                
-                // Focus back on the textarea
+                textarea.value = value.slice(0, start) + text + value.slice(end);
+                textarea.selectionStart = textarea.selectionEnd = start + text.length;
                 textarea.focus();
             }
             
-            // Auto-render when typing (with a delay to avoid performance issues)
+            // Auto-render with delay
             let typingTimer;
             latexInput.addEventListener('input', function() {
                 clearTimeout(typingTimer);
