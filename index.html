@@ -40,11 +40,6 @@
             margin-bottom: 10px;
         }
         
-        .subtitle {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-        
         .main-content {
             display: flex;
             flex-wrap: wrap;
@@ -127,7 +122,6 @@
         
         .numerator, .denominator {
             display: block;
-            padding: 0 2px;
         }
         
         .denominator {
@@ -137,14 +131,6 @@
         .sqrt {
             text-decoration: overline;
             padding-left: 5px;
-        }
-
-        .math-func {
-            font-style: italic;
-        }
-
-        .lim {
-            font-style: italic;
         }
     </style>
 </head>
@@ -166,25 +152,25 @@
                 
                 <h2 class="section-title">LaTeX Tools</h2>
                 <div class="buttons">
-                    <button id="simple-fraction">Fraction</button>
-                    <button id="multiplication-btn">× / ·</button>
-                    <button id="sqrt-btn">√</button>
-                    <button id="integral-btn">Integral</button>
-                    <button id="sum-btn">Summation</button>
-                    <button id="limit-btn">Limit</button>
-                    <button id="sub-btn">Subscript</button>
-                    <button id="sup-btn">Superscript</button>
-                    <button id="h1-btn">Heading</button>
-                    <button id="bold-btn">Bold</button>
-                    <button id="sin-btn">sin</button>
-                    <button id="cos-btn">cos</button>
-                    <button id="tan-btn">tan</button>
+                    <button id="simple-fraction">Insert Fraction</button>
+                    <button id="multiplication-btn">Insert Multiplication</button>
+                    <button id="sqrt-btn">Insert Square Root</button>
+                    <button id="integral-btn">Insert Integral</button>
+                    <button id="sub-btn">Insert Subscript</button>
+                    <button id="sup-btn">Insert Superscript</button>
+                    <button id="h1-btn">Insert H1</button>
+                    <button id="bold-btn">Insert Bold</button>
+                    <button id="sin-btn">Insert sin</button>
+                    <button id="cos-btn">Insert cos</button>
+                    <button id="tan-btn">Insert tan</button>
                 </div>
             </div>
             
             <div class="preview-section">
                 <h2 class="section-title">Preview</h2>
-                <div id="preview"><p style="text-align: center; color: #666;">Preview will appear here</p></div>
+                <div id="preview">
+                    <p style="text-align: center; color: #666;">Preview will appear here</p>
+                </div>
             </div>
         </div>
         
@@ -203,8 +189,6 @@
             const multiplicationBtn = document.getElementById('multiplication-btn');
             const sqrtBtn = document.getElementById('sqrt-btn');
             const integralBtn = document.getElementById('integral-btn');
-            const sumBtn = document.getElementById('sum-btn');
-            const limitBtn = document.getElementById('limit-btn');
             const demoSup = document.getElementById('sup-btn');
             const demoSub = document.getElementById('sub-btn');
             const h1Btn = document.getElementById('h1-btn');
@@ -213,7 +197,7 @@
             const cosBtn = document.getElementById('cos-btn');
             const tanBtn = document.getElementById('tan-btn');
 
-            // Render function
+            // Function to render our custom LaTeX-like syntax
             function renderLatex() {
                 const latexCode = latexInput.value;
                 preview.innerHTML = '';
@@ -231,99 +215,53 @@
                 }
             }
             
-            // Parser
+            // Parse our custom LaTeX-like syntax
             function parseLatex(code) {
-                let out = code;
-
-                // Line breaks
-                out = out.replace(/\r\n/g, '\n');
-                out = out.replace(/\n/g, '<br>');
-
-                // Sections: \section{Title}
-                out = out.replace(/\\section{([^}]+)}/g, '<h1>$1</h1>');
-
-                // Bold text: \textbf{...}
-                out = out.replace(/\\textbf{([^}]+)}/g, '<b>$1</b>');
-
-                // Greek letters (basic set)
-                const greekMap = {
-                    '\\\\alpha': 'α',
-                    '\\\\beta': 'β',
-                    '\\\\gamma': 'γ',
-                    '\\\\delta': 'δ',
-                    '\\\\theta': 'θ',
-                    '\\\\lambda': 'λ',
-                    '\\\\mu': 'μ',
-                    '\\\\pi': 'π',
-                    '\\\\sigma': 'σ',
-                    '\\\\phi': 'φ',
-                    '\\\\omega': 'ω'
-                };
-                for (const pattern in greekMap) {
-                    const re = new RegExp(pattern, 'g');
-                    out = out.replace(re, greekMap[pattern]);
-                }
+                // Fractions: \frac{a}{b}
+                code = code.replace(/\\frac{([^}]+)}{([^}]+)}/g, 
+                    '<span class="fraction"><span class="numerator">$1</span><span class="denominator">$2</span></span>');
+                
+                // Multiplication
+                code = code.replace(/\\times/g, '×');
+                code = code.replace(/\\cdot/g, '·');
+                
+                // Square roots
+                code = code.replace(/\\sqrt{([^}]+)}/g, 
+                    '√<span class="sqrt">$1</span>');
+                
+                // Integrals with limits: \int_{a}^{b}
+                code = code.replace(/\\int_\{([^}]+)\}\^\{([^}]+)\}/g, 
+                    '∫<sub>$1</sub><sup>$2</sup>');
+                
+                // Plain integral \int
+                code = code.replace(/\\int/g,'∫');
 
                 // Trigonometric functions
-                out = out.replace(/\\sin/g, '<span class="math-func">sin</span>');
-                out = out.replace(/\\cos/g, '<span class="math-func">cos</span>');
-                out = out.replace(/\\tan/g, '<span class="math-func">tan</span>');
+                code = code.replace(/\\sin/g, 'sin');
+                code = code.replace(/\\cos/g, 'cos');
+                code = code.replace(/\\tan/g, 'tan');
 
-                // Fractions: \frac{a}{b}
-                out = out.replace(/\\frac{([^}]+)}{([^}]+)}/g,
-                    '<span class="fraction"><span class="numerator">$1</span><span class="denominator">$2</span></span>'
-                );
-                
-                // Multiplication symbols
-                out = out.replace(/\\times/g, '×');
-                out = out.replace(/\\cdot/g, '·');
-                
-                // Square roots: \sqrt{...}
-                out = out.replace(/\\sqrt{([^}]+)}/g,
-                    '√<span class="sqrt">$1</span>'
-                );
+                // H1 Heading (\section{})
+                code = code.replace(/\\section{([^}]+)}/g, '<h1>$1</h1>');
 
-                // Summation with limits: \sum_{i=1}^{n}
-                out = out.replace(/\\sum_\{([^}]+)\}\^\{([^}]+)\}/g,
-                    '∑<sub>$1</sub><sup>$2</sup>'
-                );
-                // Plain sum
-                out = out.replace(/\\sum/g, '∑');
+                // Bold text
+                code = code.replace(/\\textbf{([^}]+)}/g, '<b>$1</b>');
 
-                // Limits: \lim_{x→0}
-                out = out.replace(/\\lim_\{([^}]+)\}/g,
-                    '<span class="lim">lim</span><sub>$1</sub>'
-                );
-                out = out.replace(/\\lim/g,
-                    '<span class="lim">lim</span>'
-                );
-
-                // Integrals with limits: \int_{a}^{b}
-                out = out.replace(/\\int_\{([^}]+)\}\^\{([^}]+)\}/g,
-                    '∫<sub>$1</sub><sup>$2</sup>'
-                );
-                // Plain integral
-                out = out.replace(/\\int/g, '∫');
-
-                // First pass: one-level superscripts/subscripts: x^{2}, x_{i}
-                out = out.replace(/([a-zA-Z0-9])\^\{([^}]+)\}/g, '$1<sup>$2</sup>');
-                out = out.replace(/([a-zA-Z0-9])_\{([^}]+)\}/g, '$1<sub>$2</sub>');
-
-                // Additional passes to handle nested uses
-                while (/\^\{([^}]+)\}/.test(out)) {
-                    out = out.replace(/([a-zA-Z0-9])\^\{([^}]+)\}/g, '$1<sup>$2</sup>');
+                // Superscript and subscript (loop to handle nested)
+                while (/\^\{([^}]+)\}/.test(code)) {
+                    code = code.replace(/([a-zA-Z0-9])\^\{([^}]+)\}/g,'$1<sup>$2</sup>');
                 }
-                while (/_\{([^}]+)\}/.test(out)) {
-                    out = out.replace(/([a-zA-Z0-9])_\{([^}]+)\}/g, '$1<sub>$2</sub>');
+                while (/_\{([^}]+)\}/.test(code)) {
+                    code = code.replace(/([a-zA-Z0-9])_\{([^}]+)\}/g,'$1<sub>$2</sub>');
                 }
 
-                return out;
+                return code;
             }
             
             // Initial render
             renderLatex();
             
-            // Events
+            // Event listeners
             renderBtn.addEventListener('click', renderLatex);
             
             clearBtn.addEventListener('click', function() {
@@ -332,7 +270,7 @@
             });
             
             simpleFractionBtn.addEventListener('click', function() {
-                insertAtCursor(latexInput, '\\frac{a}{b}');
+                insertAtCursor(latexInput, '\\frac{numerator}{denominator}');
                 renderLatex();
             });
             
@@ -342,23 +280,12 @@
             });
             
             sqrtBtn.addEventListener('click', function() {
-                insertAtCursor(latexInput, '\\sqrt{x}');
+                insertAtCursor(latexInput, '\\sqrt{value}');
                 renderLatex();
             });
 
             integralBtn.addEventListener('click', function() {
-                // LaTeX-like integral with limits
-                insertAtCursor(latexInput, '\\int_{a}^{b} f(x) \\, dx');
-                renderLatex();
-            });
-
-            sumBtn.addEventListener('click', function() {
-                insertAtCursor(latexInput, '\\sum_{i=1}^{n} a_i');
-                renderLatex();
-            });
-
-            limitBtn.addEventListener('click', function() {
-                insertAtCursor(latexInput, '\\lim_{x \\to 0} f(x)');
+                insertAtCursor(latexInput, '\\int_{a}^{b} f(x) dx');
                 renderLatex();
             });
 
@@ -368,7 +295,7 @@
             });
 
             demoSub.addEventListener('click', function() {
-                insertAtCursor(latexInput, 'H_{2}O');
+                insertAtCursor(latexInput, 'H_{2}');
                 renderLatex();
             });
 
@@ -397,18 +324,21 @@
                 renderLatex();
             });
 
-            // Insert helper
+            // Helper function to insert text at cursor position
             function insertAtCursor(textarea, text) {
                 const start = textarea.selectionStart;
                 const end = textarea.selectionEnd;
-                const value = textarea.value;
+                const currentValue = textarea.value;
                 
-                textarea.value = value.slice(0, start) + text + value.slice(end);
+                textarea.value = currentValue.substring(0, start) + 
+                                 text + 
+                                 currentValue.substring(end);
+                
                 textarea.selectionStart = textarea.selectionEnd = start + text.length;
                 textarea.focus();
             }
             
-            // Auto-render with delay
+            // Auto-render when typing (with a delay)
             let typingTimer;
             latexInput.addEventListener('input', function() {
                 clearTimeout(typingTimer);
